@@ -12,10 +12,14 @@ const int LEDPin [3] = {11, 9, 10};
 
 int LEDValue [3] = {0, 0, 0};
 
-SoftwareSerial BT (7, 6);  // Rx, Tx pins, from the Arduino perspective
+SoftwareSerial BT (7, 6);  // Rx, Tx pins, from the Arduino perspective  (Tx, Rx on BT)
 
 int byteCount = 0;
 int LEDIndex = 0;
+
+int index = 0;
+char serialString[20];
+//String serialString;
 
 void setup ()
 {
@@ -36,8 +40,6 @@ void loop ()
 
    if (byteCount > 0)
    {
-      Serial.write ("Bluetooth value recieved\n");
-
       LEDIndex = 0;
       while (BT.available () &&  LEDIndex < LEDPINS)
       {
@@ -54,6 +56,21 @@ void loop ()
          analogWrite (LEDPin [i], LEDValue [i]);
       };
 
+   }
+
+   byteCount = Serial.available ();
+   if (byteCount > 0)
+   {
+      // Send the received string over Bluetooth to the phone.
+      index = 0;
+      while (Serial.available ())
+      {
+         serialString [index] = Serial.read();
+      }
+
+      Serial.write (serialString);
+      
+      BT.write (serialString);
    }
 }
 
